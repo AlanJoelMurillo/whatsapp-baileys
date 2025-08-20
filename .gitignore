@@ -1,0 +1,30 @@
+# Node dependencies
+node_modules/
+
+#Auth and Cache whatsapp-baileys
+auth_info/
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Environment variables
+.env
+.env.*    # si usas variantes como .env.local, .env.development
+
+# Coverage reports
+coverage/
+
+# Build output
+dist/
+build/
+
+# OS files
+.DS_Store
+Thumbs.db

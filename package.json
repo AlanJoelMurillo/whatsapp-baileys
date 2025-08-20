@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.18",
+    "dotenv": "^17.2.1",
+    "odbc": "^2.4.9",
+    "qrcode-terminal": "^0.12.0"
+  }
+}
