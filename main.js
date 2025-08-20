@@ -16,16 +16,13 @@ const credentials = [
 ];
 
 async function startSock() {
-  // 🔹 Estado de autenticación
-  const { state, saveCreds } = await useMultiFileAuthState("auth_info"); // carpeta donde se guarda la sesión
+  const { state, saveCreds } = await useMultiFileAuthState("auth_info");
 
-  // 🔹 Inicializar cliente
   const sock = makeWASocket({
     auth: state,
-    printQRInTerminal: false // 🚫 deprecado, usamos connection.update
+    printQRInTerminal: false,
   });
 
-  // 🔹 Eventos de conexión
   sock.ev.on("connection.update", (update) => {
     const { connection, lastDisconnect, qr } = update;
 
@@ -37,10 +34,7 @@ async function startSock() {
     if (connection === "open") {
       console.log("✅ Cliente WhatsApp listo");
 
-      // Ejecutar inmediatamente
       checkDatabases(sock);
-
-      // Repetir cada 10 segundos
       setInterval(() => {
         checkDatabases(sock);
       }, 15000);
@@ -50,25 +44,22 @@ async function startSock() {
       const reason = lastDisconnect?.error?.output?.statusCode;
       console.log("⚠️ Conexión cerrada", reason);
       if (reason !== DisconnectReason.loggedOut) {
-        startSock(); // intenta reconectar
+        startSock(); // reconectar
       }
     }
   });
 
-  // 🔹 Guardar credenciales
   sock.ev.on("creds.update", saveCreds);
 
   return sock;
 }
 
-// 🔹 Verificar todas las bases de datos
 async function checkDatabases(sock) {
   for (const cred of credentials) {
     await consultaSybase(sock, cred.ip, cred.pass, cred.name);
   }
 }
 
-// 🔹 Consulta a Sybase
 async function consultaSybase(sock, ip, pass, name) {
   let connectionString;
 
@@ -85,7 +76,7 @@ async function consultaSybase(sock, ip, pass, name) {
     const connection = await odbc.connect(connectionString);
     await connection.query("sp_who2");
     console.log(`[ o ] ${name}`);
-    sendoOk(sock, name)
+    sendoOk(sock, name);
     await connection.close();
   } catch (err) {
     console.error(`[ x ] ${name}`);
@@ -93,9 +84,8 @@ async function consultaSybase(sock, ip, pass, name) {
   }
 }
 
-// 🔹 Enviar alerta por WhatsApp
 async function sendAlert(sock, ip, name, error) {
-  const number = `${process.env.PHONE}@s.whatsapp.net`; // Baileys usa @s.whatsapp.net
+  const number = `${process.env.PHONE}@s.whatsapp.net`;
   const message = `❗❗❗ Falla en servidor ❗❗❗ 
 ⚠️ Server: ${name} 
 🌐 IP: ${ip} 
@@ -103,7 +93,11 @@ async function sendAlert(sock, ip, name, error) {
 🔎 https://monitoreodb.juarez.gob.mx/`;
 
   try {
-    await sock.sendMessage(number, { text: message });
+    await sock.sendMessage(
+      number,
+      { text: message },
+      { linkPreview: false } // 🚫 desactiva preview de URLs
+    );
     console.log(`📩 Alerta enviada a ${number}`);
   } catch (err) {
     console.error("❌ Error enviando mensaje:", err);
@@ -111,15 +105,18 @@ async function sendAlert(sock, ip, name, error) {
 }
 
 async function sendoOk(sock, name) {
-  const number = `${process.env.PHONE}@s.whatsapp.net`; // Baileys usa @s.whatsapp.net
-  const message = `Todo bien en Server: ${name} `;
+  const number = `${process.env.PHONE}@s.whatsapp.net`;
+  const message = `Todo bien en Server: ${name}`;
   try {
-    await sock.sendMessage(number, { text: message });
-    console.log(`📩 Alerta enviada a ${number}`);
+    await sock.sendMessage(
+      number,
+      { text: message },
+      { linkPreview: false } // 🚫 también aquí por si hay URLs
+    );
+    console.log(`📩 Mensaje OK enviado a ${number}`);
   } catch (err) {
     console.error("❌ Error enviando mensaje:", err);
   }
 }
 
-// 🚀 Iniciar
 startSock();
