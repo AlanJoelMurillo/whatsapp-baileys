@@ -77,7 +77,7 @@ async function consultaSybase(sock, ip, pass, name) {               // Consulta 
       `Server=${ip};` +                                             // IP de la BD
       `Port=5000;` +                                                // Puerto de tu Sybase
       `Database=${process.env.NAME_DB};` +                          // Nombre de BD
-      `UID=${process.env.USER};` +                                  // Usuario
+      `UID=${process.env.USER_DB};` +                                  // Usuario
       `PWD=${pass};` +                                              // Password (desde credencial particular)
       `TDS_Version=5.0;`;                                           // Versión de protocolo TDS si aplica
 
