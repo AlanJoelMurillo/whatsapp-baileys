@@ -56,6 +56,29 @@ async function startSock() {                                        // Inicia (o
       }
     }
   });
+  
+  sock.ev.on("messages.upsert", async (m) => {
+        try {
+            const msg = m.messages[0]
+            if (!msg.message) return // mensaje vacío o no soportado
+
+            const from = msg.key.remoteJid
+            const text =
+                msg.message.conversation ||
+                msg.message.extendedTextMessage?.text ||
+                msg.message.imageMessage?.caption ||
+                null
+
+            console.log("📩 Nuevo mensaje de:", from)
+            if (text) {
+                console.log("   Texto:", text)
+            } else {
+                console.log("   (No se pudo leer el contenido o no es texto)")
+            }
+        } catch (err) {
+            console.error("❌ Error al manejar mensaje:", err)
+        }
+    })
 
   sock.ev.on("creds.update", saveCreds);                            // Cada vez que cambian credenciales, persístelas en disco
 
