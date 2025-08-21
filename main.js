@@ -4,7 +4,8 @@ const qrcode = require("qrcode-terminal");  // Imprime QR en terminal
 const odbc = require("odbc");               // Cliente ODBC para Sybase
 const express = require("express");         // Servidor HTTP ligero
 const fs = require("fs");                   // Filesystem para manejar el socket Unix
-require("dotenv").config();                 // Carga variables de .env a process.env
+require("dotenv").config();  
+const path = require("path");               // Carga variables de .env a process.env
 
 // 🔹 Variable dinámica para el número de WhatsApp
 let phoneNumber = process.env.PHONE;        // Guarda el número que se usará para enviar mensajes; se puede actualizar en caliente
@@ -153,8 +154,6 @@ function startHttpServer() {                                        // Monta un 
   });
 }
 
-const fs = require("fs");
-const path = require("path");
 
 function updateEnv(key, value) {
   const envPath = path.resolve(__dirname, ".env");
